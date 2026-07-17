@@ -1,0 +1,44 @@
+model Profile {
+  id        String    @id @default(uuid())
+  name      String
+  proxy     String
+  apps      App[]
+  accounts  Account[]
+}
+
+model App {
+  id        String   @id @default(uuid())
+  name      String
+  token     String  
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  actId     String   @unique
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  pages     Page[]
+  pixels    Pixel[]
+}
+
+model Page {
+  id        String   @id @default(uuid())
+  name      String
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model Pixel {
+  id        String   @id @default(uuid())
+  name      String
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model Draft {
+  id        String   @id @default(uuid())
+  payload   Json     // Salva o estado atual do form preenchido
+  mediaId   String?  // ID do vídeo salvo
+}
