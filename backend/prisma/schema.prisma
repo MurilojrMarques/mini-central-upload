@@ -47,7 +47,16 @@ model Pixel {
 }
 
 model Draft {
-  id        String   @id @default(uuid())
-  payload   Json     // Salva o estado atual do form preenchido
-  mediaId   String?  // ID do vídeo salvo
+  id             String   @id @default("singleton") 
+  payload        Json
+  mediaId        String?
+  idempotencyKey String?                            
+  updatedAt      DateTime @updatedAt
+}
+
+model Job {
+  idempotencyKey String   @id          
+  jobId          String   @unique
+  status         String                
+  createdAt      DateTime @default(now())
 }
