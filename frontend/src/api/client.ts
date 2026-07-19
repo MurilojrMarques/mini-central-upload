@@ -1,6 +1,12 @@
 import type { ProfileView, DraftPayload, CheckResult, Job } from '../types';
 
 const BASE = import.meta.env.VITE_API_URL || '/api';
+export interface CreateProfileBody {
+  name: string;
+  proxy: string;
+  apps: { name: string; token: string }[];
+  accounts: { actId: string; pages: { name: string }[]; pixels: { name: string }[] }[];
+}
 
 export class ApiError extends Error {
   status: number;
@@ -33,6 +39,15 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 export async function listProfiles(signal?: AbortSignal): Promise<ProfileView[]> {
   const data = await fetchApi<{ profiles: ProfileView[] }>('/profiles', { signal });
   return data.profiles;
+}
+
+export async function createProfile(body: CreateProfileBody, signal?: AbortSignal): Promise<void> {
+  return fetchApi<void>('/profiles', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal
+  });
 }
 
 export async function uploadVideo(file: File, signal?: AbortSignal): Promise<{ mediaId: string; name: string }> {

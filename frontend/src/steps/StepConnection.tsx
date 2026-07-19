@@ -1,6 +1,8 @@
+// frontend/src/steps/StepConnection.tsx
 import { useEffect, useState } from 'react';
 import { useDraft } from '../context/DraftContext';
 import { listProfiles } from '../api/client';
+import { CreateProfileModal } from '../components/CreateProfileModal';
 import type { ProfileView } from '../types';
 
 export function StepConnection() {
@@ -8,12 +10,19 @@ export function StepConnection() {
   const [profiles, setProfiles] = useState<ProfileView[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
+  const reloadProfiles = () => {
+    setLoading(true);
+    setError(null);
     listProfiles()
       .then(setProfiles)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    reloadProfiles();
   }, []);
 
   const selectedProfile = profiles.find((p) => p.id === draft.payload.profileId);
@@ -37,20 +46,36 @@ export function StepConnection() {
     updatePayload({ accountId, pageId: undefined, pixelId: undefined });
   };
 
-  const canProceed = draft.payload.profileId && draft.payload.appId && draft.payload.accountId;
+  const canProceed =
+    draft.payload.profileId && draft.payload.appId && draft.payload.accountId;
 
   if (loading) return <p className="text-gray-500">Carregando perfis…</p>;
+
   if (error)
     return (
-      <div className="text-red-600">
-        {error} — confira se o backend está no ar e se o seed rodou.
+      <div className="space-y-3">
+        <div className="text-red-600">
+          {error} — confira se o backend está no ar e se o seed rodou.
+        </div>
+        <button onClick={reloadProfiles} className="text-sm text-blue-600 underline">
+          Tentar de novo
+        </button>
       </div>
     );
 
   return (
     <div className="space-y-6">
+      {/* Perfis */}
       <section>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Perfil de acesso</label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-medium text-gray-700">Perfil de acesso</label>
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            + Novo perfil
+          </button>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {profiles.map((p) => (
             <button
@@ -72,6 +97,7 @@ export function StepConnection() {
         </div>
       </section>
 
+      {/* Aplicativo — só os do perfil selecionado */}
       {selectedProfile && (
         <section>
           <label className="block text-sm font-medium text-gray-700 mb-2">Aplicativo</label>
@@ -90,9 +116,12 @@ export function StepConnection() {
         </section>
       )}
 
+      {/* Conta — só as do perfil selecionado */}
       {selectedProfile && (
         <section>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Conta de anúncios</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Conta de anúncios
+          </label>
           <select
             className="border rounded-lg px-3 py-2 w-full"
             value={draft.payload.accountId ?? ''}
@@ -107,12 +136,14 @@ export function StepConnection() {
           </select>
           {selectedAccount && (
             <p className="text-xs text-gray-500 mt-1">
-              Ativos: {selectedAccount.pages.length} página(s), {selectedAccount.pixels.length} pixel(s)
+              Ativos: {selectedAccount.pages.length} página(s),{' '}
+              {selectedAccount.pixels.length} pixel(s)
             </p>
           )}
         </section>
       )}
 
+      {/* Navegação */}
       <div className="flex justify-end pt-4 border-t">
         <button
           disabled={!canProceed}
@@ -122,6 +153,14 @@ export function StepConnection() {
           Continuar
         </button>
       </div>
+
+      {/* Modal de cadastro */}
+      {showModal && (
+        <CreateProfileModal
+          onClose={() => setShowModal(false)}
+          onCreated={reloadProfiles}
+        />
+      )}
     </div>
   );
 }
