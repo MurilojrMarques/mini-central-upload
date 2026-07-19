@@ -1,0 +1,36 @@
+# Dependências
+node_modules/
+
+# Variáveis de Ambiente
+.env
+.env.*
+!.env.example
+
+# Builds e Compilação (Essencial para o TypeScript)
+dist/
+build/
+out/
+
+# Logs de Erro (Gerados automaticamente em caso de crash)
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testes e Cobertura (Se for usar Jest futuramente)
+coverage/
+
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Configurações de Editores de Código (Opcional, mas boa prática)
+.vscode/
+.idea/
+
+# Uploads temporários do Back-end (A sua regra já estava perfeita aqui)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Prisma (Caso você gere o client em uma pasta customizada)
+/generated/prisma
