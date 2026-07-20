@@ -228,3 +228,22 @@ e ajustando o que foi gerado.
 - Notei que o cadastro de perfil existia no back-end mas faltava na interface, e
   completei a etapa 1 com o modal de criação.(Na mão)
 
+## Escalando de 3 para milhares de anúncios
+
+```mermaid
+flowchart TD
+    A["Leva grande<br/>(milhares de conjuntos)"] --> B["Splitter<br/>divide em campanhas de ate 200"]
+    B --> C["Fila duravel<br/>jobs idempotentes, persistidos"]
+
+    C --> D["Worker - Perfil Alpha<br/>proxy e apps do perfil"]
+    C --> E["Worker - Perfil Beta<br/>proxy e apps do perfil"]
+
+    D --> F["Rotacao de apps<br/>troca no rate limit"]
+    E --> G["Rotacao de apps<br/>troca no rate limit"]
+
+    F --> H["Meta Marketing API<br/>cria objetos PAUSED, sem duplicar"]
+    G --> H
+
+    H --> I["Falha no meio?<br/>a fila reentrega o job"]
+    I -. "reprocessa sem duplicar<br/>(mesma chave de idempotencia)" .-> C
+```
