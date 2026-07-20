@@ -208,7 +208,7 @@ export class ExecutePreFlightUseCase {
     return {
       id,
       name,
-      status: isExecuted ? CheckStatus.EXECUTED : CheckStatus.EXECUTED,
+      status: CheckStatus.EXECUTED,
       passed: passedIfExecuted,
       isObligatory,
       message: passedIfExecuted ? successMsg : errorMsg,
